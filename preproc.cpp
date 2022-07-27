@@ -192,6 +192,7 @@ float get_skew_angle(cv::Mat& src, int method)
             angle = box.angle;
             break;
         case 2:
+            // TODO
             break;
       default:
             break;
