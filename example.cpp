@@ -1,6 +1,6 @@
 #include "preproc.hpp"
 #include "ocr.hpp"
-#include "parse.hpp"
+#include "parser.hpp"
 
 using namespace std;
 using namespace cv;
