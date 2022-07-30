@@ -1,7 +1,6 @@
-template <typename _Tp>
 #include "preproc.hpp"
 
-
+template <typename _Tp>
 void flatten(std::vector<cv::Rect_<_Tp>>& rects, std::vector<cv::Point_<_Tp>>& points)
 {
    points = {};
