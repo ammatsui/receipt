@@ -6,13 +6,19 @@ using namespace std;
 using namespace cv;
 
 
+
 void get_data(string path)
 {
     stringstream text;
     fstream res;
     /* the result will be saved to file with the same name, but .csv */
     string name = get_name(path);
-    Mat im = imread(path);
+    // Mat im = imread(path);
+    // /* scan from image */
+    // scan(im, im);
+    Mat im;
+    /* scan from path */
+    scan(path, im);
     res.open(name + ".csv", fstream::out);
     /* text contains the ocr's output */
     ocr(im, text); 
