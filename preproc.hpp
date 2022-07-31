@@ -83,4 +83,138 @@ void add_border(cv::Mat& src, cv::Mat& dst);
 
 void preproc(std::string path);
 
+
+
+
+template <typename _Tp>
+void flatten(std::vector<cv::Rect_<_Tp>>& rects, std::vector<cv::Point_<_Tp>>& points)
+{
+   points = {};
+   cv::Point_<_Tp> vrts[4];
+   for (int i = 0; i < rects.size(); i++)
+   {
+    vrts[0].x = rects[i].x;
+    vrts[0].y = rects[i].y;
+    points.push_back(vrts[0]);
+
+    vrts[1].x = rects[i].x + rects[i].width;
+    vrts[1].y = rects[i].y;
+    points.push_back(vrts[1]);
+
+    vrts[2].x = rects[i].x + rects[i].width;
+    vrts[2].y = rects[i].y + rects[i].height;
+    points.push_back(vrts[2]);
+
+    vrts[3].x = rects[i].x;
+    vrts[3].y = rects[i].y + rects[i].height;
+    points.push_back(vrts[3]);     
+   } 
+}
+
+
+
+template <typename _Tp>
+std::vector<cv::Point_< _Tp >> order(cv::Point_< _Tp > pnts[])
+{
+    /* points with smallest y coords - tops, largest - bottoms */
+    /* out of them, choose left and right in the correct order */
+    std::vector<cv::Point_< _Tp >> tmp;
+    for (int i = 0; i < 4; i++)
+    {
+        tmp.push_back(pnts[i]);
+    }
+    /* sort by y coord values */
+    sort(tmp.begin(), tmp.end(), compareY<_Tp>);
+    /* tops */
+    std::vector<cv::Point_< _Tp >> tm(tmp.begin(), tmp.begin()+2);
+    /* bottoms */
+    std::vector<cv::Point_< _Tp >> bm(tmp.end()-2, tmp.end());
+
+    /* sort by x coord values */
+    sort(tm.begin(), tm.end(), compareX<_Tp>);
+    sort(bm.begin(), bm.end(), compareX<_Tp>);
+
+    /* store in the correct order - tl, tr, br, bl */
+    tmp[0] = tm[0];
+    tmp[1] = tm[1];
+    tmp[2] = bm[1];
+    tmp[3] = bm[0];
+
+    return tmp;
+}
+
+
+// TODO: this is the same as the previous one, use template for container
+template <typename _Tp>
+std::vector<cv::Point_< _Tp >> order(std::vector<cv::Point_< _Tp >> pnts)
+{
+    /* points with smallest y coords - tops, largest - bottoms */
+    /* out of them, choose left and right in the correct order */
+    std::vector<cv::Point_< _Tp >> tmp;
+    for (int i = 0; i < 4; i++)
+    {
+        tmp.push_back(pnts[i]);
+    }
+    /* sort by y coord values */
+    sort(tmp.begin(), tmp.end(), compareY<_Tp>);
+    /* tops */
+    std::vector<cv::Point_< _Tp >> tm(tmp.begin(), tmp.begin()+2);
+    /* bottoms */
+    std::vector<cv::Point_< _Tp >> bm(tmp.end()-2, tmp.end());
+
+    /* sort by x coord values */
+    sort(tm.begin(), tm.end(), compareX<_Tp>);
+    sort(bm.begin(), bm.end(), compareX<_Tp>);
+
+    /* store in the correct order - tl, tr, br, bl */
+    tmp[0] = tm[0];
+    tmp[1] = tm[1];
+    tmp[2] = bm[1];
+    tmp[3] = bm[0];
+
+    return tmp;
+}
+
+
+
+template <typename _Tp>
+static bool y_axis(const std::vector<cv::Point_< _Tp >> box_1, const std::vector<cv::Point_< _Tp >> box_2)
+{
+   auto box1 = order(box_1);
+   auto box2 = order(box_2);
+
+   if (compareY(box1[0], box2[0]) && compareY(box1[3], box2[3]))
+   {
+        return true;
+   }
+   if (compareY(box1[0], box2[0]) && ~compareY(box1[3], box2[3]))
+   {
+        return compareX(box1[0], box2[0]);
+   }
+   if (~compareY(box1[0], box2[0]) && ~compareY(box1[3], box2[3]))
+   {
+        return false;
+   }
+   if (~compareY(box1[0], box2[0]) && compareY(box1[3], box2[3]))
+   {
+        return compareX(box1[0], box2[0]);
+   }
+   return false;
+
+}
+
+
+template <typename _Tp>
+static bool boxOrder(const cv::Rect_<_Tp> box1, const cv::Rect_<_Tp> box2)
+{
+   if (compareY(cv::Point_<_Tp>(box1.x, box1.y), cv::Point_<_Tp>(box2.x, box2.y)))
+   {
+        return true;
+   }
+   else 
+   {
+        return (compareX(cv::Point_<_Tp>(box1.x, box1.y), cv::Point_<_Tp>(box2.x, box2.y)));
+   }
+}
+
 #endif
