@@ -168,7 +168,7 @@ void get_boxes(cv::Mat& src, std::vector<cv::Rect>& boxes)
 
     boxes = {};
 
-   cv::resize(src, src, cv::Size(), 0.5, 0.5);
+    // cv::resize(src, src, cv::Size(), 0.5, 0.5);
   
     int horizontal_size = src.cols / 10;//10;//10;  //30
     /* create structure element for extracting horizontal lines through morphology operations */
@@ -190,16 +190,16 @@ void get_boxes(cv::Mat& src, std::vector<cv::Rect>& boxes)
         auto rect = boundingRect(contour); 
         if (contourArea(contour) <= maxArea && rect.width > rect.height * ratio) 
         {
-              rectangle(horizontal, rect, (255, 0, 0), 2);
-              rectangle(src, rect, (255, 0, 0), 2);
+              // rectangle(horizontal, rect, (255, 0, 0), 2);
+              // rectangle(src, rect, (255, 0, 0), 2);
 
             boxes.push_back(rect);
     
         }
     }
-    imshow("hor", horizontal);
-    imshow("src", src);
-    cv::waitKey();
+    // imshow("hor", horizontal);
+    // imshow("src", src);
+    // cv::waitKey();
 }
 
 
@@ -228,11 +228,11 @@ void get_lines(cv::Mat& src, std::vector<cv::Mat>& strips)
     strips = {};
 
     get_boxes(src, boxes);
-    std::cout << "size " << boxes.size() << std::endl;
+    
     int i = 0;
     while (i < boxes.size())
     {
-        rectangle(src, boxes[i], (255, 0, 0), 2);
+        // rectangle(src, boxes[i], (255, 0, 0), 2);
         /* crop out strips */
         /* strip = boxes that are on the same level, i.e. differ by epsilon */
         cv::Rect rect = boxes[i];
@@ -258,8 +258,8 @@ void get_lines(cv::Mat& src, std::vector<cv::Mat>& strips)
         cv::Mat m = crop(src, roi);
         strips.push_back(m);    
     }
-    cv::imshow("src", src);
-    cv::waitKey();
+    // cv::imshow("src", src);
+    // cv::waitKey();
 }
 
 
