@@ -75,14 +75,19 @@ void deskew(cv::Mat& image, cv::Mat& scan);
 
 void scan(cv::Mat& image, cv::Mat& scan);
 
-std::vector<cv::Rect> get_boxes(cv::Mat& src);
+void scan(std::string& path, cv::Mat& res); // {res = cv::imread(path); scan(res, res);}
+
+void get_boxes(cv::Mat& src, std::vector<cv::Rect>& boxes);
+
+cv::Mat crop(cv::Mat& src, cv::Rect& roi);
 
 void get_lines(cv::Mat& src, std::vector<cv::Mat>& strips);
+
+void get_lines(cv::Mat& src, std::vector<std::vector<cv::Mat>>& strips);
 
 void add_border(cv::Mat& src, cv::Mat& dst);
 
 void preproc(std::string path);
-
 
 
 

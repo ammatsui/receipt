@@ -25,7 +25,7 @@ void _ocr_lines(cv::Mat& image, O& out);
 template <typename O>
 void ocr(cv::Mat& image, O& out, int method)
 {
-    scan(image, image);
+    // scan(image, image);
     switch (method)
     {
         case 0:
@@ -84,6 +84,7 @@ void _ocr_lines(cv::Mat& image, O& out)
         outText = std::string(ocr->GetUTF8Text());
 
         out << outText;
+    
     }
 
     ocr->End();

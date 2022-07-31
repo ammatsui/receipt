@@ -151,19 +151,26 @@ void scan(cv::Mat& image, cv::Mat& scan)
 }
 
 
+void scan(std::string& path, cv::Mat& res)
+{
+    res = cv::imread(path); 
+    scan(res, res);
+}
+
 
 void get_boxes(cv::Mat& src, std::vector<cv::Rect>& boxes)
 {
     // TODO: add assertion that src has 1 channel */
     std::vector<std::vector<cv::Point>> cnts;
     std::vector<std::vector<cv::Point2f>> words;
+    //std::vector<cv::Rect> boxes;
     cv::Mat mask;
 
     boxes = {};
 
-    cv::resize(src, src, cv::Size(), 0.5, 0.5);
+   cv::resize(src, src, cv::Size(), 0.5, 0.5);
   
-    int horizontal_size = src.cols / 10;//10;  //30
+    int horizontal_size = src.cols / 10;//10;//10;  //30
     /* create structure element for extracting horizontal lines through morphology operations */
     cv::Mat horizontalStructure = getStructuringElement(cv::MORPH_RECT, cv::Size(horizontal_size, 1));
     /* apply morphology operations */
@@ -171,36 +178,61 @@ void get_boxes(cv::Mat& src, std::vector<cv::Rect>& boxes)
     erode(src,         horizontal, horizontalStructure, cv::Point(-1, -1));
     dilate(horizontal, horizontal, horizontalStructure, cv::Point(-1, -1));
 
-    threshold(~horizontal, mask, threshVal, maxValue, cv::THRESH_BINARY);
+    threshold(horizontal, mask, threshVal, maxValue, cv::THRESH_BINARY);
   
     findContours(mask, cnts, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
        
     /* or choose only those with width >> height */
-    float maxArea =  src.cols * src.rows ;///4;// 145;  //250   ??? maybe it is not needed
+    float maxArea =  src.cols * src.rows/4 ;///4;// 145;  //250   ??? maybe it is not needed
+    /* could be another function boxes = clean(cnts) */
     for (auto contour : cnts)
     {
         auto rect = boundingRect(contour); 
-        if (contourArea(contour) <= maxArea && rect.width > rect.height * ratio)  
+        if (contourArea(contour) <= maxArea && rect.width > rect.height * ratio) 
         {
+              rectangle(horizontal, rect, (255, 0, 0), 2);
+              rectangle(src, rect, (255, 0, 0), 2);
+
             boxes.push_back(rect);
+    
         }
     }
+    imshow("hor", horizontal);
+    imshow("src", src);
+    cv::waitKey();
+}
+
+
+
+cv::Mat crop(cv::Mat& src, cv::Rect& roi)
+{
+    /* create a mask for each strip to mask out that region from src */
+    cv::Mat m = cv::Mat::zeros(src.size(), CV_8U);
+    if ((0 <= roi.x && 0 <= roi.width && roi.x + roi.width <= m.cols && 
+         0 <= roi.y && 0 <= roi.height && roi.y + roi.height <= m.rows))
+    {
+            src(roi).copyTo(m); 
+    }
+    return m;
 }
 
 
 
 void get_lines(cv::Mat& src, std::vector<cv::Mat>& strips)
-/* future improvements: maybe add overload that returns vector of (vector of boxes in the same line) and tell tesseract to parse it as one line */
+/* maybe return vector of (vector of boxes in the same line) and tell tesseract to parse it as one line */
 {
     std::vector<cv::Rect> boxes;
     std::vector<cv::Point> points;
     cv::Rect roi;
+    // cv::Mat line, imageROI;
     strips = {};
 
     get_boxes(src, boxes);
+    std::cout << "size " << boxes.size() << std::endl;
     int i = 0;
     while (i < boxes.size())
     {
+        rectangle(src, boxes[i], (255, 0, 0), 2);
         /* crop out strips */
         /* strip = boxes that are on the same level, i.e. differ by epsilon */
         cv::Rect rect = boxes[i];
@@ -223,16 +255,45 @@ void get_lines(cv::Mat& src, std::vector<cv::Mat>& strips)
         cv::Mat line, imageROI;
 
         /* create a mask for each strip to mask out that region from src */
-        cv::Mat m = cv::Mat::zeros(src.size(), CV_8U);
-        if ((0 <= roi.x && 0 <= roi.width && roi.x + roi.width  <= m.cols && 
-             0 <= roi.y && 0 <= roi.height && roi.y + roi.height <= m.rows))
-        {
-            src(roi).copyTo(m); 
-            strips.push_back(m);
-        }
+        cv::Mat m = crop(src, roi);
+        strips.push_back(m);    
     }
+    cv::imshow("src", src);
+    cv::waitKey();
 }
 
+
+
+void get_lines(cv::Mat& src, std::vector<std::vector<cv::Mat>>& strips)
+/* maybe return vector of (vector of boxes in the same line) and tell tesseract to parse it as one line */
+{
+    std::vector<cv::Rect> boxes;
+    std::vector<cv::Point> points;
+    cv::Rect roi;
+    strips = {};
+
+    get_boxes(src, boxes);
+    int i = 0;
+    while (i < boxes.size())
+    {
+        /* crop out strips */
+        /* strip = boxes that are on the same level, i.e. differ by epsilon */
+        cv::Rect rect = boxes[i];
+        /* choose boxes on the same level (store then in box_line) */
+        std::vector<cv::Mat> box_line;
+        
+        while ((abs(rect.y - boxes[i].y) < coef*rect.height      || 
+                abs(rect.y - boxes[i].y) < coef*boxes[i].height) || 
+                i == boxes.size())  
+        {
+            auto cropped = crop(src, boxes[i]);
+            box_line.push_back(cropped);
+            i++;
+        }
+        strips.push_back(box_line); 
+    }
+
+}
 
 
 void add_border(cv::Mat& src, cv::Mat& dst)
