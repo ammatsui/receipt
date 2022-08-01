@@ -24,7 +24,7 @@ const double maxValue = 255;
 const float epsilon = 0.01;
 const float coef = 0.75;
 
-const float ratio = 1.75;
+const float ratio = 0.8; // 1.75; for short words like `tax` it needs to be bigger
 
 /* for Gaussian blur */
 const int k = 5;

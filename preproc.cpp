@@ -168,9 +168,14 @@ void get_boxes(cv::Mat& src, std::vector<cv::Rect>& boxes)
 
     boxes = {};
 
-    // cv::resize(src, src, cv::Size(), 0.5, 0.5);
+  //  cv::resize(src, src, cv::Size(), 0.5, 0.5);
+    /* size when it works */
+    /* rescale (tesseract seems to like that size) */
+    float wpercent = (basewidth/float(src.size[0]))/2;
+    float hsize = (float(src.size[1])*float(wpercent))/2;
+    cv::resize(src, src, cv::Size(), wpercent, wpercent);
   
-    int horizontal_size = src.cols / 10;//10;//10;  //30
+    int horizontal_size = src.cols / 15 ;//10; //30   15 is the best now
     /* create structure element for extracting horizontal lines through morphology operations */
     cv::Mat horizontalStructure = getStructuringElement(cv::MORPH_RECT, cv::Size(horizontal_size, 1));
     /* apply morphology operations */
@@ -178,25 +183,26 @@ void get_boxes(cv::Mat& src, std::vector<cv::Rect>& boxes)
     erode(src,         horizontal, horizontalStructure, cv::Point(-1, -1));
     dilate(horizontal, horizontal, horizontalStructure, cv::Point(-1, -1));
 
-    threshold(horizontal, mask, threshVal, maxValue, cv::THRESH_BINARY);
-  
-    findContours(mask, cnts, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
+    threshold(horizontal, mask, 0, maxValue, cv::THRESH_BINARY);  //threshVal instead of 0
+    /* objects should be white and background should be black */
+    findContours(~mask, cnts, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
        
     /* or choose only those with width >> height */
-    float maxArea =  src.cols * src.rows/4 ;///4;// 145;  //250   ??? maybe it is not needed
+    float maxArea =  src.cols * src.rows ;/// 5;///4;// 145;  //250   ??? maybe it is not needed
     /* could be another function boxes = clean(cnts) */
     for (auto contour : cnts)
     {
         auto rect = boundingRect(contour); 
         if (contourArea(contour) <= maxArea && rect.width > rect.height * ratio) 
         {
-              // rectangle(horizontal, rect, (255, 0, 0), 2);
-              // rectangle(src, rect, (255, 0, 0), 2);
+            // rectangle(horizontal, rect, (255, 0, 0), 2);
+            // rectangle(src, rect, (255, 0, 0), 2);
 
             boxes.push_back(rect);
     
         }
     }
+    
     // imshow("hor", horizontal);
     // imshow("src", src);
     // cv::waitKey();
@@ -208,7 +214,7 @@ cv::Mat crop(cv::Mat& src, cv::Rect& roi)
 {
     /* create a mask for each strip to mask out that region from src */
     cv::Mat m = cv::Mat::zeros(src.size(), CV_8U);
-    if ((0 <= roi.x && 0 <= roi.width && roi.x + roi.width <= m.cols && 
+    if ((0 <= roi.x && 0 <= roi.width && roi.x + roi.width   <= m.cols && 
          0 <= roi.y && 0 <= roi.height && roi.y + roi.height <= m.rows))
     {
             src(roi).copyTo(m); 
@@ -228,21 +234,19 @@ void get_lines(cv::Mat& src, std::vector<cv::Mat>& strips)
     strips = {};
 
     get_boxes(src, boxes);
-    
     int i = 0;
     while (i < boxes.size())
     {
-        // rectangle(src, boxes[i], (255, 0, 0), 2);
+       // rectangle(src, boxes[i], (255, 0, 0), 2);
         /* crop out strips */
         /* strip = boxes that are on the same level, i.e. differ by epsilon */
         cv::Rect rect = boxes[i];
         /* choose boxes on the same level (store then in tmp) */
         std::vector<cv::Rect> tmp;
-        
-        while ((abs(rect.y - boxes[i].y) < coef*rect.height      || 
-                abs(rect.y - boxes[i].y) < coef*boxes[i].height) || 
-                i == boxes.size()
-              )  
+
+       
+        while ((abs(rect.y - boxes[i].y) < coef*rect.height || 
+                abs(rect.y - boxes[i].y) < coef*boxes[i].height))  
         {
             tmp.push_back(boxes[i]);
             i++;
@@ -252,7 +256,7 @@ void get_lines(cv::Mat& src, std::vector<cv::Mat>& strips)
         flatten(tmp, points);
         roi = boundingRect(points);
 
-        cv::Mat line, imageROI;
+       // rectangle(src, roi, (255, 0, 0), 2);
 
         /* create a mask for each strip to mask out that region from src */
         cv::Mat m = crop(src, roi);
@@ -282,9 +286,8 @@ void get_lines(cv::Mat& src, std::vector<std::vector<cv::Mat>>& strips)
         /* choose boxes on the same level (store then in box_line) */
         std::vector<cv::Mat> box_line;
         
-        while ((abs(rect.y - boxes[i].y) < coef*rect.height      || 
-                abs(rect.y - boxes[i].y) < coef*boxes[i].height) || 
-                i == boxes.size())  
+        while ((abs(rect.y - boxes[i].y) < coef*rect.height || 
+                abs(rect.y - boxes[i].y) < coef*boxes[i].height))  
         {
             auto cropped = crop(src, boxes[i]);
             box_line.push_back(cropped);
@@ -298,8 +301,10 @@ void get_lines(cv::Mat& src, std::vector<std::vector<cv::Mat>>& strips)
 
 void add_border(cv::Mat& src, cv::Mat& dst)
 {
-    int w = std::max(W, src.cols + offset);
-    int h = std::max(H, src.rows + offset);
+    // int w = std::max(W, src.cols + 2*offset);
+    // int h = std::max(H, src.rows + 2*offset);
+    int w = src.cols + offset;
+    int h = src.rows + offset;
     dst = ~cv::Mat::zeros(cv::Size(w, h), CV_8U);
     int x = (dst.cols - src.cols) / 2;
     int y = (dst.rows - src.rows) / 2;

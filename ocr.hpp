@@ -72,12 +72,16 @@ void _ocr_lines(cv::Mat& image, O& out)
     tesseract::TessBaseAPI *ocr = new tesseract::TessBaseAPI();
     ocr->Init(NULL, "eng", tesseract::OEM_LSTM_ONLY);
 
-    ocr->SetPageSegMode(tesseract::PSM_SINGLE_WORD);
+    ocr->SetPageSegMode(tesseract::PSM_SINGLE_LINE);
   
     for (int i = lines.size()-1; i >= 0; i--)
     {
         /* add border for tesseract */
         add_border(lines[i], line);
+        dilate(line, line, getStructuringElement(cv::MORPH_RECT, cv::Size(2, 2)));
+
+        // cv::imshow("line", line);
+        // cv::waitKey();
   
         ocr->SetImage(line.data, line.cols, line.rows, 1, line.step);
 
