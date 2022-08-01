@@ -72,7 +72,7 @@ void _ocr_lines(cv::Mat& image, O& out)
     tesseract::TessBaseAPI *ocr = new tesseract::TessBaseAPI();
     ocr->Init(NULL, "eng", tesseract::OEM_LSTM_ONLY);
 
-    ocr->SetPageSegMode(tesseract::PSM_SINGLE_LINE);
+    ocr->SetPageSegMode(tesseract::PSM_SINGLE_LINE);  // actually, it works better with SINGLE_WORD 
   
     for (int i = lines.size()-1; i >= 0; i--)
     {
