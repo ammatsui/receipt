@@ -21,6 +21,11 @@ void _ocr_full(cv::Mat& image, O& out);
 template <typename O>
 void _ocr_lines(cv::Mat& image, O& out);
 
+template <typename O>
+void _ocr_wordlines(cv::Mat& image, O& out)
+
+
+
 
 template <typename O>
 void ocr(cv::Mat& image, O& out, int method)
@@ -34,6 +39,9 @@ void ocr(cv::Mat& image, O& out, int method)
         case 1:
             _ocr_lines(image, out);
             break;
+        case 2:
+            _ocr_wordlines(image, out);
+            break;
         default:
             break;
     }
@@ -42,7 +50,7 @@ void ocr(cv::Mat& image, O& out, int method)
 
 
 template <typename O>
-void _ocr_full(cv::Mat& image, O& out)  // image is already a scan
+void _ocr_full(cv::Mat& image, O& out)  
 {  
     std::string outText;  
     tesseract::TessBaseAPI *ocr = new tesseract::TessBaseAPI();
@@ -88,6 +96,48 @@ void _ocr_lines(cv::Mat& image, O& out)
         outText = std::string(ocr->GetUTF8Text());
 
         out << outText;
+    
+    }
+
+    ocr->End();
+}
+
+
+template <typename O>
+void _ocr_wordlines(cv::Mat& image, O& out)
+{
+    std::vector<std::vector<cv::Mat>> lines;
+    cv::Mat line, im;
+    std::string outText;
+    get_lines(image, lines);
+    
+    tesseract::TessBaseAPI *ocr = new tesseract::TessBaseAPI();
+    ocr->Init(NULL, "eng", tesseract::OEM_LSTM_ONLY);
+
+    ocr->SetPageSegMode(tesseract::PSM_SINGLE_WORD);
+
+    ocr->SetVariable("tessedit_char_whitelist", whitelist);
+  
+    for (int i = lines.size()-1; i >= 0; i--)
+    {
+        std::string tmp;
+        for (int j = 0; j < lines[i].size(); j++)
+        {
+            /* add border for tesseract */
+            add_border(lines[i][j], line);
+            dilate(line, line, getStructuringElement(cv::MORPH_RECT, cv::Size(2, 2)));
+
+            ocr->SetImage(line.data, line.cols, line.rows, 1, line.step);
+
+            outText = std::string(ocr->GetUTF8Text());
+
+            tmp += outText;
+
+            /* remove newline characters */
+            tmp = std::regex_replace(tmp, std::regex("\\r\\n|\\r|\\n"), " ");
+
+        }
+        out << tmp << "\n";
     
     }
 
