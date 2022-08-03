@@ -4,7 +4,8 @@ Receipt scanner + parser
 ## contains
 `preproc` files do the preprocessing steps such that crop the image of a receipt and turn it into a scan-like image.
 Before and after:
-![image](https://user-images.githubusercontent.com/54817160/182263635-aa9971f5-56ec-4389-ab66-daa7783a7776.png | width=100) ![scan](https://user-images.githubusercontent.com/54817160/182263638-ab8dd140-65e7-4d5c-a636-d0bc7c27b7f9.png  | width=100)
+![before](https://user-images.githubusercontent.com/54817160/182263635-aa9971f5-56ec-4389-ab66-daa7783a7776.png | width=100) 
+![after](https://user-images.githubusercontent.com/54817160/182263638-ab8dd140-65e7-4d5c-a636-d0bc7c27b7f9.png  | width=100)
 
 `ocr` does the text extraction.
 There are several methods: 
