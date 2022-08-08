@@ -151,7 +151,8 @@ void scan(cv::Mat& image, cv::Mat& scan)
 }
 
 
-void scan(std::string& path, cv::Mat& res)
+// void scan(std::string& path, cv::Mat& res)
+void scan(const char* path, cv::Mat& res)
 {
     res = cv::imread(path); 
     scan(res, res);
@@ -303,11 +304,14 @@ void add_border(cv::Mat& src, cv::Mat& dst)
 {
     // int w = std::max(W, src.cols + 2*offset);
     // int h = std::max(H, src.rows + 2*offset);
+    if (src.cols > 0 && src.rows > 0)
+    {
     int w = src.cols + offset;
     int h = src.rows + offset;
     dst = ~cv::Mat::zeros(cv::Size(w, h), CV_8U);
     int x = (dst.cols - src.cols) / 2;
-    int y = (dst.rows - src.rows) / 2;
+    int y = (dst.rows - src.rows) / 2;    
     src.copyTo(dst(cv::Rect(x, y, src.cols, src.rows)));
+    }
     return;
 }
