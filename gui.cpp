@@ -1,8 +1,5 @@
-
 #include "utils.hpp"
 #include "gui.hpp"
-
-#include <iostream> // for debugging
 
 
 
@@ -18,7 +15,7 @@ char* openfilename(HWND hwnd)
     LPSTR filebuff = new char[256];
     OPENFILENAME open = { 0 };
     open.lStructSize = sizeof(OPENFILENAME);
-    open.hwndOwner = hwnd; //Handle to the parent window
+    open.hwndOwner = hwnd; 
     open.lpstrFilter = imageFiles;
     open.lpstrCustomFilter = NULL;
     open.lpstrFile = filebuff;
@@ -45,7 +42,7 @@ char* savefilename(HWND hwnd)
     LPSTR filebuff = new char[256];
     OPENFILENAME open = { 0 };
     open.lStructSize = sizeof(OPENFILENAME);
-    open.hwndOwner = hwnd; //Handle to the parent window
+    open.hwndOwner = hwnd; 
     open.lpstrFilter = allFiles;
     open.lpstrCustomFilter = NULL;
     open.lpstrFile = filebuff;
@@ -224,7 +221,7 @@ void show_table()
                 ImGui::TableSetColumnIndex(column);
                
                 std::string fld = "##" + std::to_string(row) + std::to_string(column);        
-                ImGui::InputText(fld.c_str(), &new_entries[i][column]); //&entries[row][column]); 
+                ImGui::InputText(fld.c_str(), &new_entries[i][column]);  
 
             }
             row++; 
@@ -236,8 +233,7 @@ void show_table()
 
 
 
-//int gui_start()
-int main()
+int gui_start()
 {
     /* setup window */
     glfwSetErrorCallback(glfw_error_callback);
