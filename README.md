@@ -1,6 +1,12 @@
 # receipt
 Receipt scanner + parser
 
+## GUI usage and functionality
+Allows to upload an image file and then choose settings for text extraction method.
+The result is displayed in a redactable table, that can be saved as a `.csv` (or anything) later.
+
+Future work: allow to change GUI's language.
+
 ## contains
 `preproc` files do the preprocessing steps such that crop the image of a receipt and turn it into a scan-like image.
 Before and after:
