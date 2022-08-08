@@ -17,9 +17,11 @@ pass lines (which are just a set of words) and extract text word by word.
 
  `parser` saves the extracted data into a `.csv` file in the format `Item,Price`.
 
-Future improvements are to be made.
+Future improvements are to be made. 
 
 ## dependencies
 opencv
 tesseract
 leptonica
+dear imgui
+win32
