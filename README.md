@@ -23,5 +23,5 @@ Future improvements are to be made.
 opencv
 tesseract
 leptonica
-dear imgui
+dear imgui (opengl + glwf3)
 win32
