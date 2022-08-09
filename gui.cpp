@@ -179,11 +179,9 @@ void show_table()
         } 
 
     
-
-    
-    if (ImGui::BeginTable("Result", n_cols, ImGuiTableFlags_SizingFixedFit))
+    if (ImGui::BeginTable("Result", n_cols, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_Borders))
     {
-        for (int i = 0; i < headers.size(); i++)
+        for (int i = 0; i < n_cols; i++)
         {
             ImGui::TableSetupColumn(headers[i], 0, column_width);
         }
@@ -200,8 +198,10 @@ void show_table()
                 ImGui::TableSetColumnIndex(column);
            
            
-                std::string fld = "##" + std::to_string(row) + std::to_string(column);        
-                ImGui::InputText(fld.c_str(), &entries[row][column]); 
+                std::string fld = "##" + std::to_string(row) + std::to_string(column);  
+                ImGui::PushItemWidth(column_width);      
+                ImGui::InputText(fld.c_str(), &entries[row][column]);
+                ImGui::PopItemWidth(); 
               
             }
             row++;
@@ -220,8 +220,10 @@ void show_table()
             {   
                 ImGui::TableSetColumnIndex(column);
                
-                std::string fld = "##" + std::to_string(row) + std::to_string(column);        
-                ImGui::InputText(fld.c_str(), &new_entries[i][column]);  
+                std::string fld = "##" + std::to_string(row) + std::to_string(column);
+                ImGui::PushItemWidth(column_width);        
+                ImGui::InputText(fld.c_str(), &new_entries[i][column]); //&entries[row][column]); 
+                ImGui::PopItemWidth();
 
             }
             row++; 
