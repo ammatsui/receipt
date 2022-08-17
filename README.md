@@ -5,6 +5,12 @@ Receipt scanner + parser
 Allows to upload an image file and then choose settings for text extraction method.
 The result is displayed in a redactable table, that can be saved as a `.csv` (or anything) later.
 
+### Example of usage:
+<img src = "https://user-images.githubusercontent.com/54817160/185261366-43f47628-845e-4dd1-ab0e-de8bb70935b3.png" width = "150">
+<img src = "https://user-images.githubusercontent.com/54817160/185261369-390e96f9-3192-4bde-a7bd-aeca6b8c5a1f.png" width = "150">
+<img src = "https://user-images.githubusercontent.com/54817160/185261370-f4f0a61c-064b-404a-8454-54cf7b323ead.png" width = "150">
+
+
 Future work: allow to change GUI's language.
 
 ## contains
